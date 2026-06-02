@@ -30,6 +30,22 @@
       </p>
     </div>
 
+    <div class="settings-panel" style="background: white; padding: 1.2rem; border-radius: 16px; border: 1px solid var(--border-color); margin-bottom: 1.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+      <h3 style="font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--color-text-secondary); display: flex; align-items: center; gap: 6px; font-weight: 600;">
+        🔄 Sincronizar Inventario
+      </h3>
+      <p style="font-size: 0.75rem; color: #666; margin-bottom: 0.8rem; line-height: 1.4;">
+        Selecciona el archivo <strong>INVENTARIO.xlsx</strong> para sincronizarlo con la base de datos en Supabase.
+        Las fórmulas de prealistamiento existentes se conservarán. Los registros que ya no estén en el Excel se eliminarán automáticamente.
+      </p>
+      <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+        <input type="file" id="excelFileInput" accept=".xlsx,.xls" style="flex: 1; min-width: 220px; padding: 8px; font-size: 0.85rem; border: 1px solid var(--border-color); border-radius: 8px; background: white;">
+        <button id="syncExcelBtn" class="btn btn-primary" disabled style="padding: 8px 16px; font-size: 0.85rem; opacity: 0.5;">Importar y Sincronizar</button>
+      </div>
+      <div id="syncFileName" style="display: none; margin-top: 8px; font-size: 0.8rem; color: #475569;"></div>
+      <div id="syncStatus" style="margin-top: 10px; max-height: 220px; overflow-y: auto; background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0; font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; line-height: 1.5;"></div>
+    </div>
+
     <section class="controls-section">
       <div class="input-group">
         <label for="searchInput">Buscar (SAP, Descripción, Módulo)</label>
@@ -119,11 +135,13 @@
   <!-- Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
   <!-- App Scripts -->
   <script src="supabase-client.js"></script>
   <script src="data.js"></script>
   <script src="app.js"></script>
   <script src="qr.js"></script>
+  <script src="excel-sync.js"></script>
 </body>
 </html>
