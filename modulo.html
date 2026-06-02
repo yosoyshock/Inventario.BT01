@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Consulta de Módulo - Planta</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      --accent-color: #6366f1; /* Premium Indigo */
+      --accent-hover: #4f46e5;
+      --success-color: #10b981; /* Emerald */
+      --success-bg: rgba(16, 185, 129, 0.1);
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --text-main: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+      --border-color: #e2e8f0;
+      
+      --font-sans: 'Outfit', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg-gradient);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+      color: var(--text-main);
+    }
+
+    .container {
+      width: 100%;
+      max-width: 440px;
+      animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 28px;
+      padding: 2.2rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Decorative top bar */
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, var(--accent-color), #8b5cf6);
+    }
+
+    .header-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 1.2rem;
+    }
+
+    .module-badge {
+      background: #f1f5f9;
+      padding: 0.5rem 1rem;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--accent-color);
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      font-family: var(--font-mono);
+      border: 1px solid var(--border-color);
+    }
+
+    .status-badge {
+      background: var(--success-bg);
+      color: var(--success-color);
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background-color: var(--success-color);
+      border-radius: 50%;
+      display: inline-block;
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.9); opacity: 0.6; }
+      50% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(0.9); opacity: 0.6; }
+    }
+
+    .info-group {
+      margin-bottom: 1.8rem;
+    }
+
+    .label {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-secondary);
+      font-weight: 600;
+      margin-bottom: 0.4rem;
+    }
+
+    .sap-code-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sap-code {
+      font-family: var(--font-mono);
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--text-main);
+      background: #f8fafc;
+      padding: 0.3rem 0.8rem;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+    }
+
+    .copy-btn {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+
+    .copy-btn:hover {
+      background: #f1f5f9;
+      color: var(--accent-color);
+    }
+
+    .description {
+      font-size: 1.35rem;
+      font-weight: 500;
+      color: #1e293b;
+      line-height: 1.4;
+    }
+
+    .qty-display {
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border-radius: 20px;
+      padding: 1.5rem;
+      border: 1px solid var(--border-color);
+      text-align: center;
+      margin-bottom: 1.8rem;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+    }
+
+    .qty-value {
+      font-family: var(--font-mono);
+      font-size: 3.2rem;
+      font-weight: 700;
+      color: var(--accent-color);
+      line-height: 1;
+      margin-bottom: 0.3rem;
+    }
+
+    .qty-label {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .prealistamiento-section {
+      background: #fffbeb;
+      border: 1px solid #fef3c7;
+      border-radius: 16px;
+      padding: 1.2rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.05);
+    }
+
+    .prealistamiento-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #b45309;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.6rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .prealistamiento-formula {
+      font-family: var(--font-mono);
+      font-size: 1.15rem;
+      color: #d97706;
+      word-break: break-all;
+      background: rgba(255, 255, 255, 0.6);
+      padding: 0.6rem 0.8rem;
+      border-radius: 10px;
+      border: 1px solid #fde68a;
+      line-height: 1.4;
+    }
+
+    .prealistamiento-hint {
+      font-size: 0.78rem;
+      color: #b45309;
+      margin-top: 0.5rem;
+      font-style: italic;
+    }
+
+    .footer-info {
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 1.5rem;
+      line-height: 1.5;
+    }
+
+    /* Loading Spinner */
+    .loader {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem 0;
+    }
+
+    .spinner {
+      width: 45px;
+      height: 45px;
+      border: 4px solid var(--border-color);
+      border-top: 4px solid var(--accent-color);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 1.5rem;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Error styles */
+    .error-card {
+      text-align: center;
+      padding: 2.5rem 1.5rem;
+    }
+
+    .error-icon {
+      font-size: 3rem;
+      color: #ef4444;
+      margin-bottom: 1rem;
+    }
+
+    .error-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 0.5rem;
+    }
+
+    .error-msg {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div id="content" class="card">
+      <div class="loader">
+        <div class="spinner"></div>
+        <p style="color: var(--text-secondary); font-weight: 500;">Conectando con base de datos...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supabase CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Supabase Client Setup -->
+  <script src="supabase-client.js"></script>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const moduloId = urlParams.get('id');
+      const content = document.getElementById('content');
+
+      if (!moduloId) {
+        showError('Especificación Requerida', 'No se ha indicado ningún identificador de módulo en la URL. Escanee el código QR correspondiente.');
+        return;
+      }
+
+      try {
+        // Query Supabase for items in this module
+        const { data: items, error } = await supabaseClient
+          .from('inventario')
+          .select('*')
+          .eq('modulo', moduloId);
+
+        if (error) throw error;
+
+        if (!items || items.length === 0) {
+          showError('Módulo Vacío', `No se encontró información ni materiales registrados para el <strong>MÓDULO ${moduloId}</strong> en la base de datos.`);
+          return;
+        }
+
+        // Render module materials
+        renderModuleData(moduloId, items);
+
+      } catch (err) {
+        console.error('Error loading module data:', err);
+        showError('Error de Conexión', 'Hubo un problema al intentar descargar los datos desde la nube. Por favor, reintente en unos instantes.');
+      }
+    });
+
+    function showError(title, message) {
+      const content = document.getElementById('content');
+      content.innerHTML = `
+        <div class="error-card">
+          <div class="error-icon">⚠️</div>
+          <h3 class="error-title">${title}</h3>
+          <p class="error-msg">${message}</p>
+          <button onclick="window.location.reload()" style="margin-top: 1.5rem; padding: 0.6rem 1.2rem; border-radius: 8px; border: none; background: #ef4444; color: white; font-weight: 600; cursor: pointer;">
+            Reintentar
+          </button>
+        </div>
+      `;
+    }
+
+    function renderModuleData(moduloId, items) {
+      const content = document.getElementById('content');
+      let html = '';
+
+      items.forEach((item, index) => {
+        // Evaluate breakdown to show nicely
+        let formulaHtml = '';
+        if (item.prealistamiento) {
+          formulaHtml = `
+            <div class="prealistamiento-section">
+              <div class="prealistamiento-title">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 9h16M4 15h16"></path>
+                </svg>
+                Desglose Prealistamiento
+              </div>
+              <div class="prealistamiento-formula">${item.prealistamiento}</div>
+              <div class="prealistamiento-hint">Suma total ya validada con SAP. Anota este número en la hoja.</div>
+            </div>
+          `;
+        }
+
+        const qtyFormatted = (item.cantidad || 0).toLocaleString('es-ES');
+        
+        html += `
+          <div class="module-item-container" style="${index > 0 ? 'margin-top: 2rem; border-top: 1px dashed var(--border-color); padding-top: 2rem;' : ''}">
+            <div class="header-section">
+              <span class="module-badge">MÓDULO ${moduloId}</span>
+              <div class="status-badge">
+                <span class="status-dot"></span>
+                <span>Validado SAP</span>
+              </div>
+            </div>
+
+            <div class="info-group">
+              <div class="label">Código SAP</div>
+              <div class="sap-code-wrapper">
+                <span class="sap-code" id="sap-code-${item.id}">${item.codigo_sap}</span>
+                <button class="copy-btn" onclick="copyText('${item.codigo_sap}', this)" title="Copiar código">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <div class="info-group">
+              <div class="label">Descripción del Material</div>
+              <div class="description">${item.descripcion || 'Sin descripción'}</div>
+            </div>
+
+            <div class="qty-display">
+              <div class="qty-value">${qtyFormatted}</div>
+              <div class="qty-label">Unidades Disponibles</div>
+            </div>
+
+            ${formulaHtml}
+
+            ${item.proveedor && item.proveedor !== 'N/A' ? `
+            <div class="info-group" style="margin-bottom: 0;">
+              <div class="label">Proveedor</div>
+              <div style="font-weight: 500; color: var(--text-secondary); font-size: 0.95rem;">${item.proveedor}</div>
+            </div>` : ''}
+          </div>
+        `;
+      });
+
+      // Add a general footer
+      html += `
+        <div class="footer-info">
+          Para realizar modificaciones al inventario, acceda al panel de control administrativo.<br>
+          <strong>ID Consulta:</strong> ${new Date().toISOString().split('T')[0]}-${moduloId}
+        </div>
+      `;
+
+      content.innerHTML = html;
+    }
+
+    function copyText(text, btnElement) {
+      navigator.clipboard.writeText(text).then(() => {
+        // Temporary success visual state
+        const originalSVG = btnElement.innerHTML;
+        btnElement.innerHTML = `
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        `;
+        setTimeout(() => {
+          btnElement.innerHTML = originalSVG;
+        }, 1500);
+      });
+    }
+  </script>
+</body>
+</html>

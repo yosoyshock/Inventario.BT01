@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Control - Inventario</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <header class="header">
+      <div class="header-title">
+        <h1>Control de Inventario</h1>
+      </div>
+      <div class="stats-container" id="statsContainer">
+        <!-- Stats will be rendered here -->
+      </div>
+    </header>
+
+    <div class="settings-panel" style="background: white; padding: 1.2rem; border-radius: 16px; border: 1px solid var(--border-color); margin-bottom: 1.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+      <h3 style="font-size: 0.9rem; margin-bottom: 0.5rem; color: var(--color-text-secondary); display: flex; align-items: center; gap: 6px; font-weight: 600;">
+        ⚙️ Configuración del QR
+      </h3>
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <input type="text" id="qrBaseUrlInput" style="flex: 1; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 0.85rem;" placeholder="Ej: https://mi-inventario.vercel.app">
+        <button class="btn btn-primary" onclick="saveQRSettings()" style="padding: 8px 16px; font-size: 0.85rem;">Guardar URL</button>
+      </div>
+      <p style="font-size: 0.75rem; color: #666; margin-top: 6px; line-height: 1.4;">
+        Los códigos QR se generarán apuntando a esta URL. Modifícala por tu dirección pública de <strong>Vercel</strong> cuando la despliegues para que funcione al escanear desde teléfonos.
+      </p>
+    </div>
+
+    <section class="controls-section">
+      <div class="input-group">
+        <label for="searchInput">Buscar (SAP, Descripción, Módulo)</label>
+        <input type="text" id="searchInput" placeholder="Ej. PILSENER, 210655, LI17...">
+      </div>
+      <div class="input-group" style="flex-direction: row; align-items: flex-end; gap: var(--space-md);">
+        <div class="input-group" style="flex: 1;">
+          <label for="zoneFilter">Zona / Área</label>
+          <select id="zoneFilter">
+            <option value="ALL">Todas las zonas</option>
+            <!-- Zones will be populated dynamically -->
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <main id="modulesGrid" class="modules-grid">
+      <!-- Module cards will be rendered here -->
+    </main>
+  </div>
+
+  <!-- QR Modal -->
+  <div class="modal-overlay" id="qrModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="qrModalTitle">Código QR</h3>
+        <button class="btn-icon" onclick="closeModal('qrModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="qr-container" id="qrContainer"></div>
+        <p style="text-align: center; margin-top: 1rem; color: var(--color-text-secondary); font-size: 0.85rem;">
+          Escanea este código para acceder a la vista de lectura del módulo.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" onclick="printQR()">Imprimir QR</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="modal-overlay" id="editModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Editar Producto</h3>
+        <button class="btn-icon" onclick="closeModal('editModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="editForm">
+          <input type="hidden" id="editId">
+          <div class="form-group">
+            <label>Módulo</label>
+            <input type="text" id="editModulo" disabled>
+          </div>
+          <div class="form-group">
+            <label>Código SAP</label>
+            <input type="text" id="editSap" required>
+          </div>
+          <div class="form-group">
+            <label>Descripción</label>
+            <input type="text" id="editDesc" required>
+          </div>
+          <div class="form-group">
+            <label>Cantidad (SAP)</label>
+            <input type="number" id="editQty" required min="0">
+          </div>
+          <div class="form-group">
+            <label>Prealistamiento (Fórmula / Desglose)</label>
+            <input type="text" id="editPrealistamiento" placeholder="Ej: 1549+1680+1980+1590+129">
+            <small style="color: #666; margin-top: 4px; display: block; font-size: 0.75rem;">
+              Ejemplo: 1549+1680+1980. El total se calculará automáticamente al guardar.
+            </small>
+          </div>
+          <div class="form-group">
+            <label>Proveedor</label>
+            <input type="text" id="editProv">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('editModal')">Cancelar</button>
+        <button class="btn btn-primary" onclick="saveEdit()">Guardar Cambios</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  
+  <!-- App Scripts -->
+  <script src="supabase-client.js"></script>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+  <script src="qr.js"></script>
+</body>
+</html>
