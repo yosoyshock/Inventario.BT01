@@ -98,6 +98,19 @@
       border: 1px solid var(--border-color);
     }
 
+    .module-type {
+      display: inline-flex;
+      align-items: center;
+      background: #eef2ff;
+      color: #4338ca;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
     .status-badge {
       background: var(--success-bg);
       color: var(--success-color);
@@ -369,6 +382,7 @@
 
     function renderModuleData(moduloId, items) {
       const content = document.getElementById('content');
+      const moduleTypeLabel = getModuleTypeLabel(moduloId);
       let html = '';
 
       items.forEach((item, index) => {
@@ -394,7 +408,10 @@
         html += `
           <div class="module-item-container" style="${index > 0 ? 'margin-top: 2rem; border-top: 1px dashed var(--border-color); padding-top: 2rem;' : ''}">
             <div class="header-section">
-              <span class="module-badge">MÓDULO ${moduloId}</span>
+              <div style="display: flex; flex-direction: column; gap: 0.6rem;">
+                <span class="module-badge">MÓDULO ${moduloId}</span>
+                ${moduleTypeLabel ? `<span class="module-type">${moduleTypeLabel}</span>` : ''}
+              </div>
               <div class="status-badge">
                 <span class="status-dot"></span>
                 <span>Validado SAP</span>
@@ -444,6 +461,21 @@
       `;
 
       content.innerHTML = html;
+    }
+
+    function getModuleTypeLabel(moduloId) {
+      if (!moduloId) return '';
+      const normalized = moduloId.trim().toUpperCase();
+      if (normalized.startsWith('LT')) {
+        return 'LAMINA TERMINADA';
+      }
+      if (normalized.startsWith('LI')) {
+        return 'LAMINA INTERMEDIA';
+      }
+      if (normalized.startsWith('T')) {
+        return 'TROQUELADORA';
+      }
+      return '';
     }
 
     function copyText(text, btnElement) {
