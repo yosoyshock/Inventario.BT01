@@ -134,3 +134,5 @@ async function syncExcelToSupabase() {
 }
 
 syncExcelToSupabase();
+
+//node sync_excel.js

@@ -44,9 +44,14 @@ async function syncFromExcelFile(file, statusEl) {
     const arrayBuffer = await file.arrayBuffer();
     const workbook = XLSX.read(arrayBuffer, { type: 'array' });
 
-    const sheet = workbook.Sheets['DATA'];
+    const sheetName = workbook.SheetNames.find(name => String(name).trim().toLowerCase() === 'data');
+    const sheet = workbook.Sheets[sheetName || workbook.SheetNames[0]];
     if (!sheet) {
-      throw new Error('No se encontró la hoja "DATA" dentro del archivo Excel.');
+      throw new Error('No se pudo leer ninguna hoja del archivo Excel. Asegúrate de que el archivo tenga al menos una hoja.');
+    }
+
+    if (!sheetName) {
+      log('No se encontró la hoja "DATA". Usando la primera hoja disponible: ' + workbook.SheetNames[0], 'warn');
     }
 
     const excelData = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
@@ -93,10 +98,48 @@ async function syncFromExcelFile(file, statusEl) {
 
       const existingPrealistamiento = prealistamientoMap.get(id) || null;
 
+      const parseCantidad = function (value) {
+        if (typeof value === 'number') {
+          return Number.isFinite(value) ? Math.round(value) : 0;
+        }
+        if (typeof value === 'string') {
+          const normalized = value.replace(/\./g, '').replace(/,/g, '.').trim();
+          const parsed = parseFloat(normalized);
+          return Number.isFinite(parsed) ? Math.round(parsed) : 0;
+        }
+        return 0;
+      };
+
+      const parseCodigoSap = function (value) {
+        if (typeof value === 'number') {
+          return Number.isFinite(value) ? String(Math.round(value)) : '';
+        }
+        if (typeof value === 'string') {
+          const trimmed = value.trim();
+          const normalized = trimmed.replace(/\./g, '').replace(/,/g, '.');
+          const parsed = parseFloat(normalized);
+          if (Number.isFinite(parsed) && /^[+-]?\d+(?:\.\d+)?$/.test(normalized)) {
+            return String(Math.round(parsed));
+          }
+          return trimmed;
+        }
+        return '';
+      };
+
+      const cantidadInt = parseCantidad(cantidad);
+      const codigoSapValue = parseCodigoSap(codigo);
+
+      if (typeof cantidad === 'number' && !Number.isInteger(cantidad)) {
+        log('Cantidad decimal encontrada en fila con código ' + codigo + '. Redondeando a ' + cantidadInt, 'warn');
+      }
+      if (typeof codigo === 'number' && !Number.isInteger(codigo)) {
+        log('Código SAP decimal encontrado en Excel: ' + codigo + '. Convirtiendo a enteros para Supabase.', 'warn');
+      }
+
       upsertRows.push({
         id: id,
-        codigo_sap: String(codigo).trim(),
-        cantidad: typeof cantidad === 'number' ? cantidad : 0,
+        codigo_sap: codigoSapValue,
+        cantidad: cantidadInt,
         descripcion: (typeof descripcion === 'string' ? descripcion : '').trim(),
         proveedor: (typeof proveedor === 'string' ? proveedor : 'N/A').trim() || 'N/A',
         modulo: String(modulo).trim(),

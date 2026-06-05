@@ -7,6 +7,7 @@
     "dev": "live-server --host=0.0.0.0 --port=5500 --open=./index.html --watch=."
   },
   "dependencies": {
+    "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.107.0",
     "dotenv": "^17.4.2",
     "xlsx": "^0.18.5"
