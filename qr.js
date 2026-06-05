@@ -27,18 +27,37 @@ function showQR(moduloId) {
   qr.addData(targetUrl);
   qr.make();
 
-  // Render QR as Image
+  // Render QR as SVG for vector quality
   // cell size 6, margin 4
-  qrContainer.innerHTML = qr.createImgTag(6, 4);
+  qrContainer.innerHTML = qr.createSvgTag(6, 4);
 
   openModal('qrModal');
+}
+
+function downloadSVG() {
+  if (!currentQRModule) return;
+
+  const qrSvg = document.querySelector('#qrContainer svg');
+  if (!qrSvg) return;
+
+  const svgData = qrSvg.outerHTML;
+  const blob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+
+  link.href = url;
+  link.download = `QR-modulo-${currentQRModule}.svg`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  setTimeout(() => URL.revokeObjectURL(url), 100);
 }
 
 function printQR() {
   if (!currentQRModule) return;
   
-  const qrImg = document.querySelector('#qrContainer img');
-  if (!qrImg) return;
+  const qrSvg = document.querySelector('#qrContainer svg');
+  if (!qrSvg) return;
 
   const printWindow = window.open('', '_blank');
   printWindow.document.write(`
@@ -60,7 +79,7 @@ function printQR() {
             margin-bottom: 1rem;
             font-weight: bold;
           }
-          img {
+          svg {
             max-width: 80vw;
             max-height: 80vh;
           }
@@ -68,7 +87,7 @@ function printQR() {
       </head>
       <body>
         <div class="label">MÓDULO ${currentQRModule}</div>
-        <img src="${qrImg.src}" />
+        ${qrSvg.outerHTML}
         <script>
           window.onload = function() {
             setTimeout(() => {
